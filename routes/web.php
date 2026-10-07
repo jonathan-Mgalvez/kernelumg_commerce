@@ -13,8 +13,11 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PublicOfferController;
+use App\Http\Controllers\Admin\AdminAuditController;
+use App\Services\DashboardMetricsService;
 use Illuminate\Support\Facades\Route;
 
 // Rutas Institucionales
@@ -41,6 +44,12 @@ Route::middleware(['auth', 'active', 'role:customer,inventory_manager,admin'])->
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/procesar', [CheckoutController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/exito/{tracking}', [CheckoutController::class, 'success'])->name('checkout.success');
+    // Perfil y Rastreo de Pedidos del Cliente
+    Route::get('/perfil', [CustomerProfileController::class, 'profile'])->name('customer.profile');
+    Route::patch('/perfil/datos', [CustomerProfileController::class, 'updateProfile'])->name('customer.profile.update');
+    Route::patch('/perfil/clave', [CustomerProfileController::class, 'updatePassword'])->name('customer.password.update');
+    Route::get('/mis-pedidos', [CustomerProfileController::class, 'orders'])->name('customer.orders');
+    Route::get('/mis-pedidos/rastreo/{trackingCode}', [CustomerProfileController::class, 'trackOrder'])->name('customer.orders.track');
 });
 
 // Rutas de Acceso para Visitantes (No Autenticados)
@@ -55,8 +64,9 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 // Panel Administrativo - Dashboard Base
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
+Route::get('/admin/dashboard', function (DashboardMetricsService $metricsService) {
+    $metrics = $metricsService->getExecutiveSummary();
+    return view('admin.dashboard', compact('metrics'));
 })->name('admin.dashboard')->middleware(['auth', 'active', 'role:admin,inventory_manager']);
 
 // Rutas Operativas: Gestor de Inventario y Administrador
@@ -95,4 +105,6 @@ Route::prefix('admin')
         Route::get('/messages', [ContactAdminController::class, 'index'])->name('messages.index');
         Route::get('/messages/{id}', [ContactAdminController::class, 'show'])->name('messages.show');
         Route::patch('/messages/{id}/status', [ContactAdminController::class, 'updateStatus'])->name('messages.updateStatus');
+        // Bitácora de Auditoría y Trazabilidad Forense
+        Route::get('/audits', [AdminAuditController::class, 'index'])->name('audits.index');
     });
