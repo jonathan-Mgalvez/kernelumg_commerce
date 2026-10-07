@@ -1,17 +1,21 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminCategoryController;
+use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Admin\AdminQuotationController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\BulkInventoryController;
+use App\Http\Controllers\Admin\ContactAdminController;
 use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\PublicOfferController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PublicOfferController;
 use Illuminate\Support\Facades\Route;
-
 
 // Rutas Institucionales
 Route::get('/', [PageController::class, 'home'])->name('home');
@@ -39,11 +43,6 @@ Route::middleware(['auth', 'active', 'role:customer,inventory_manager,admin'])->
     Route::get('/checkout/exito/{tracking}', [CheckoutController::class, 'success'])->name('checkout.success');
 });
 
-// Panel Administrativo - Dashboard Base
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
-})->name('admin.dashboard')->middleware(['auth', 'active', 'role:admin,inventory_manager']);
-
 // Rutas de Acceso para Visitantes (No Autenticados)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -55,12 +54,45 @@ Route::middleware('guest')->group(function () {
 // Ruta de Cierre de Sesión Protegida
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-// Panel Administrativo: Catálogo y Ofertas (Gestores de Inventario y Administradores)
+// Panel Administrativo - Dashboard Base
+Route::get('/admin/dashboard', function () {
+    return view('admin.dashboard');
+})->name('admin.dashboard')->middleware(['auth', 'active', 'role:admin,inventory_manager']);
+
+// Rutas Operativas: Gestor de Inventario y Administrador
 Route::prefix('admin')
     ->name('admin.')
     ->middleware(['auth', 'active', 'role:inventory_manager,admin'])
     ->group(function () {
+        // Catálogo Base y Promociones
         Route::resource('categories', AdminCategoryController::class);
         Route::resource('products', AdminProductController::class);
         Route::resource('offers', OfferController::class);
+
+        // Operaciones Masivas de Inventario
+        Route::patch('/products/bulk-update', [BulkInventoryController::class, 'updateBulk'])->name('products.bulkUpdate');
+        Route::delete('/products/bulk-delete', [BulkInventoryController::class, 'destroyBulk'])->name('products.bulkDelete');
+
+        // Gestión de Pedidos
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{id}', [AdminOrderController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
+        // Auditoría de Cotizaciones del Bot
+        Route::get('/quotations', [AdminQuotationController::class, 'index'])->name('quotations.index');
+        Route::get('/quotations/{id}', [AdminQuotationController::class, 'show'])->name('quotations.show');
+    });
+
+// Rutas Exclusivas: Administrador
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'active', 'role:admin'])
+    ->group(function () {
+        // Mantenimiento de Usuarios y Permisos
+        Route::resource('users', AdminUserController::class);
+
+        // Bandeja de Entrada y Respuestas de Contacto
+        Route::get('/messages', [ContactAdminController::class, 'index'])->name('messages.index');
+        Route::get('/messages/{id}', [ContactAdminController::class, 'show'])->name('messages.show');
+        Route::patch('/messages/{id}/status', [ContactAdminController::class, 'updateStatus'])->name('messages.updateStatus');
     });
