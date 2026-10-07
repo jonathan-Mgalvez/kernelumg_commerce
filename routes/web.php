@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminCategoryController;
+use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -10,7 +13,7 @@ Route::get('/', function () {
 
 Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
-})->name('admin.dashboard')->middleware(['auth', 'role:admin,inventory_manager']);
+})->name('admin.dashboard')->middleware(['auth', 'active', 'role:admin,inventory_manager']);
 
 // Rutas de Acceso para Visitantes (No Autenticados)
 Route::middleware('guest')->group(function () {
@@ -22,3 +25,13 @@ Route::middleware('guest')->group(function () {
 
 // Ruta de Cierre de Sesión Protegida
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+// Panel Administrativo: Catálogo y Ofertas (Gestores de Inventario y Administradores)
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'active', 'role:inventory_manager,admin'])
+    ->group(function () {
+        Route::resource('categories', AdminCategoryController::class);
+        Route::resource('products', AdminProductController::class);
+        Route::resource('offers', OfferController::class);
+    });
