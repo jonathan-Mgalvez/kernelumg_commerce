@@ -43,3 +43,8 @@ Route::prefix('admin')
         Route::resource('products', AdminProductController::class);
         Route::resource('offers', OfferController::class);
     });
+
+// Ruta provisional del Carrito para soporte del Bot
+Route::get('/carrito', function () {
+    return 'Carrito Provisional';
+})->name('cart.index');
