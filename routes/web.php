@@ -4,6 +4,8 @@ use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\PublicOfferController;
 use Illuminate\Support\Facades\Route;
 
 // Rutas base provisionales para redireccionamiento seguro del backend
@@ -11,6 +13,12 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+// Rutas Públicas de Catálogo, Ficha Técnica y Ofertas
+Route::get('/catalogo', [CatalogController::class, 'index'])->name('catalog.index');
+Route::get('/catalogo/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
+Route::get('/ofertas', [PublicOfferController::class, 'index'])->name('offers.index');
+
+// Panel Administrativo - Dashboard Base
 Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
 })->name('admin.dashboard')->middleware(['auth', 'active', 'role:admin,inventory_manager']);
