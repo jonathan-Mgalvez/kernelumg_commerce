@@ -1,0 +1,19 @@
+/* KernelUMG - Estilo de muestra provisional */
+.bot-floating-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.bot-toggle-btn {
+    background-color: #0d6efd;
+    color: #ffffff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
