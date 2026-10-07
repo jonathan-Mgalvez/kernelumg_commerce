@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Builder;
 
 class Product extends Model
 {
@@ -68,5 +69,18 @@ class Product extends Model
     public function quotationDetails(): HasMany
     {
         return $this->hasMany(QuotationDetail::class, 'product_id');
+    }
+    /**
+     * Scope para consultas filtradas aprovechando índices compuestos.
+     */
+    public function scopeFiltered(Builder $query, array $filters): Builder
+    {
+        return $query->where('is_active', true)
+            ->when($filters['category'] ?? null, function ($q, $cat) {
+                $q->whereHas('category', fn($c) => $c->where('slug', $cat));
+            })
+            ->when($filters['min_price'] ?? null, fn($q, $min) => $q->where('price', '>=', (float)$min))
+            ->when($filters['max_price'] ?? null, fn($q, $max) => $q->where('price', '<=', (float)$max))
+            ->when(($filters['stock'] ?? null) === 'in_stock', fn($q) => $q->where('stock', '>', 0));
     }
 }
