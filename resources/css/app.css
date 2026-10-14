@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    [x-cloak] { display: none !important; }
+    body { @apply bg-surface-container-low text-on-surface font-sans antialiased; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+}
+
+@layer components {
+    .btn { @apply inline-flex items-center justify-center gap-2 h-9 px-4 rounded text-label-lg font-semibold transition-colors; }
+    .btn-primary { @apply btn bg-primary-container text-white hover:bg-primary-hover active:bg-primary; }
+    .btn-secondary { @apply btn bg-white border border-line text-on-surface hover:bg-surface-container-low hover:border-outline-variant; }
+    .btn-danger { @apply btn bg-white border border-danger text-danger hover:bg-danger hover:text-white; }
+    .btn-sm { @apply h-8 px-3 text-label-md; }
+
+    .card { @apply bg-white border border-line rounded shadow-[0_1px_3px_rgba(0,0,0,0.06)]; }
+    .chip { @apply inline-flex items-center gap-1 px-2 py-0.5 rounded border border-line bg-line-soft text-label-sm uppercase text-on-surface; }
+    .chip-ok { @apply chip border-ok/30 bg-ok/10 text-ok; }
+    .chip-warn { @apply chip border-warn/30 bg-warn/10 text-warn; }
+    .chip-danger { @apply chip border-danger/30 bg-danger/10 text-danger; }
+    .chip-info { @apply chip border-primary-container/30 bg-primary-fixed text-primary-container; }
+
+    .input { @apply block w-full h-9 rounded border-line bg-white px-3 text-body-md text-on-surface focus:border-primary-container focus:ring-primary-container; }
+    .label { @apply block mb-1 text-label-sm uppercase text-muted; }
+
+    .table-ft { @apply w-full text-body-md; }
+    .table-ft thead th { @apply bg-line-soft border-b border-line px-3 py-2 text-left text-label-sm uppercase text-muted; }
+    .table-ft tbody td { @apply border-b border-line-soft px-3 py-2 align-middle; }
+    .table-ft tbody tr:hover { @apply bg-[#f9f8f6]; }
+    .num { font-variant-numeric: tabular-nums; @apply text-right; }
+
+    .overline { @apply text-label-sm uppercase text-muted; }
+}
